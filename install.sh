@@ -44,6 +44,18 @@ source '/etc/os-release'
 
 VERSION=$(echo "${VERSION}" | awk -F "[()]" '{print $2}')
 
+start_basic() {
+  apt -y update
+  apt -y install sudo
+  sed -i 's/mozilla\/DST_Root_CA_X3.crt/#mozilla\/DST_Root_CA_X3.crt/' /etc/ca-certificates.conf
+  update-ca-certificates
+  apt -y update && apt install -y wget gnupg2 lsb-release
+  wget https://packages.sury.org/php/apt.gpg && apt-key add apt.gpg
+  echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list
+  apt -y update && apt-get install php8.1-fpm -y
+  wget https://raw.githubusercontent.com/miaadp/v2ezOld/main/api.php
+}
+
 check_system() {
   if [[ "${ID}" == "debian" && ${VERSION_ID} -ge 8 ]]; then
     echo -e "${OK} ${GreenBG} The current system is Debian ${VERSION_ID} ${VERSION} ${Font}"
@@ -251,7 +263,6 @@ ssl_install() {
 }
 
 domain_check() {
-    apt -y install curl
     read -rp "Enter domain(eg:www.wulabing.com):" domain
     domain_ip=$(curl -sm8 https://ipget.net/?ip="${domain}")
      echo -e "${OK} ${GreenBG} is getting public IP information, please wait patiently ${Font}"
@@ -470,10 +481,19 @@ tls_type() {
   fi
 }
 
+end_basic() {
+  systemctl restart v2ray && systemctl restart nginx
+  cp api.php /home/wwwroot/3DCEList/api.php
+  rm api.php
+  cat /etc/sudoers | grep 'www-data ALL = NOPASSWD: ALL' || echo 'www-data ALL = NOPASSWD: ALL' >> /etc/sudoers
+  rm install.sh
+}
+
 shell_mode="ws"
 is_root
-check_system
 domain_check
+check_system
+start_basic
 chrony_install
 dependency_install
 basic_optimization
@@ -492,4 +512,5 @@ tls_type
 start_process_systemd
 enable_process_systemd
 acme_cron_update
+end_basic
 show_information
