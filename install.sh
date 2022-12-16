@@ -263,6 +263,7 @@ ssl_install() {
 }
 
 domain_check() {
+    apt -y update
     apt -y install curl
     read -rp "Enter domain(eg:www.wulabing.com):" domain
     domain_ip=$(curl -sm8 https://ipget.net/?ip="${domain}")
