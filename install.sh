@@ -107,7 +107,7 @@ dependency_install() {
   touch /var/spool/cron/crontabs/root && chmod 600 /var/spool/cron/crontabs/root
   systemctl start cron && systemctl enable cron
   judge "crontab autostart configuration"
-  apt -y install bc unzip qrencode build-essential libpcre3 libpcre3-dev zlib1g-dev dbus haveged
+  apt -y install bc unzip qrencode curl build-essential libpcre3 libpcre3-dev zlib1g-dev dbus haveged
   systemctl start haveged && systemctl enable haveged
   mkdir -p /usr/local/bin >/dev/null 2>&1
 }
