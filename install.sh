@@ -18,8 +18,7 @@ Font="\033[0m"
 OK="${Green}[OK]${Font}"
 Error="${Red}[WRONG]${Font}"
 
-shell_mode="None"
-github_branch="master"
+shell_mode="ws"
 v2ray_conf_dir="/etc/v2ray"
 nginx_conf_dir="/etc/nginx/conf/conf.d"
 v2ray_conf="${v2ray_conf_dir}/config.json"
@@ -165,7 +164,7 @@ v2ray_install() {
   fi
   mkdir -p /root/v2ray
   cd /root/v2ray || exit
-  wget -N --no-check-certificate https://raw.githubusercontent.com/wulabing/V2Ray_ws-tls_bash_onekey/${github_branch}/v2ray.sh
+  wget -N --no-check-certificate https://raw.githubusercontent.com/wulabing/V2Ray_ws-tls_bash_onekey/master/v2ray.sh
 
   if [[ -f v2ray.sh ]]; then
     rm -rf $v2ray_systemd_file
@@ -269,10 +268,8 @@ domain_check() {
     domain_ip=$(curl -sm8 https://ipget.net/?ip="${domain}")
      echo -e "${OK} ${GreenBG} is getting public IP information, please wait patiently ${Font}"
      echo -e "The IP of domain name DNS resolution: ${domain_ip}"
-     echo -e "Local IPv4: ${local_ipv4}"
-     echo -e "Local IPv6: ${local_ipv6}"
-     echo "Now you will go to sleep for 10 second , dont worry"
-     sleep 10
+     echo "Now you will go to sleep for 5 second , dont worry"
+     sleep 5
 }
 
 port_exist_check() {
@@ -485,13 +482,18 @@ tls_type() {
 
 end_basic() {
   systemctl restart v2ray && systemctl restart nginx
-  cp api.php /home/wwwroot/3DCEList/api.php
-  rm api.php
+  cp /root/api.php /home/wwwroot/3DCEList/api.php
+  rm /root/api.php
   cat /etc/sudoers | grep 'www-data ALL = NOPASSWD: ALL' || echo 'www-data ALL = NOPASSWD: ALL' >> /etc/sudoers
   rm install.sh
+  apt -y install htop
+  curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash
+  apt-get install speedtest
+  speedtest
+  sleep 10
 }
 
-shell_mode="ws"
+
 is_root
 domain_check
 check_system
