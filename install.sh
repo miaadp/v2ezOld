@@ -510,12 +510,12 @@ nginx_exist_check
 v2ray_conf_add_tls
 nginx_conf_add
 web_camouflage
+read -rp "Do you want to continue? It will check domain ip, some make sure any cloud is off" test
 ssl_judge_and_install
 nginx_systemd
 tls_type
 start_process_systemd
 enable_process_systemd
-read -rp "Do you want to continue? It will check domain ip, some make sure any cloud is off" test
 acme_cron_update
 end_basic
 show_information
