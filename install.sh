@@ -515,6 +515,7 @@ nginx_systemd
 tls_type
 start_process_systemd
 enable_process_systemd
+read -rp "Do you want to continue? It will check domain ip, some make sure any cloud is off" test
 acme_cron_update
 end_basic
 show_information
