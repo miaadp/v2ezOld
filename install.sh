@@ -310,6 +310,8 @@ acme() {
 v2ray_conf_add_tls() {
   cd /etc/v2ray || exit
   wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/config.json -O config.json
+  wget --no-check-certificate https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat -O dlc.dat
+  wget --no-check-certificate https://github.com/bootmortis/iran-hosted-domains/releases/latest/download/iran.dat -O iran.dat
   modify_path
   modify_inbound_port
 }
@@ -487,6 +489,10 @@ end_basic() {
   cat /etc/sudoers | grep 'www-data ALL = NOPASSWD: ALL' || echo 'www-data ALL = NOPASSWD: ALL' >> /etc/sudoers
   rm install.sh
   apt -y install htop
+  echo net.ipv6.conf.all.disable_ipv6=1 >> /etc/sysctl.conf
+  echo net.ipv6.conf.default.disable_ipv6=1 >> /etc/sysctl.conf
+  echo net.ipv6.conf.lo.disable_ipv6=1 >> /etc/sysctl.conf
+  sysctl -p
   curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash
   apt-get install speedtest
   speedtest
