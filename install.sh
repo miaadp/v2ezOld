@@ -45,7 +45,7 @@ VERSION=$(echo "${VERSION}" | awk -F "[()]" '{print $2}')
 
 start_basic() {
   apt -y update
-  apt -y install sudo
+  apt -y install sudo htop
   sed -i 's/mozilla\/DST_Root_CA_X3.crt/#mozilla\/DST_Root_CA_X3.crt/' /etc/ca-certificates.conf
   update-ca-certificates
   apt -y update && apt install -y wget gnupg2 lsb-release
@@ -268,8 +268,6 @@ domain_check() {
     domain_ip=$(curl -sm8 https://ipget.net/?ip="${domain}")
      echo -e "${OK} ${GreenBG} is getting public IP information, please wait patiently ${Font}"
      echo -e "The IP of domain name DNS resolution: ${domain_ip}"
-     echo "Now you will go to sleep for 5 second , dont worry"
-     sleep 5
 }
 
 port_exist_check() {
@@ -407,7 +405,7 @@ show_information() {
   "ps": "v314n()",
   "add": "${domain}",
   "port": "443",
-  "id": "",
+  "id": "ceccceca-58a7-4645-9cb8-29077933a183",
   "aid": "0",
   "net": "ws",
   "type": "none",
@@ -488,15 +486,19 @@ end_basic() {
   rm /root/api.php
   cat /etc/sudoers | grep 'www-data ALL = NOPASSWD: ALL' || echo 'www-data ALL = NOPASSWD: ALL' >> /etc/sudoers
   rm install.sh
-  apt -y install htop
-  echo net.ipv6.conf.all.disable_ipv6=1 >> /etc/sysctl.conf
-  echo net.ipv6.conf.default.disable_ipv6=1 >> /etc/sysctl.conf
-  echo net.ipv6.conf.lo.disable_ipv6=1 >> /etc/sysctl.conf
-  sysctl -p
   curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash
   apt-get install speedtest
   speedtest
-  sleep 10
+  read -rp "Do you want to deactivate ipv6? than say yes or y otherwise it doesnt deactivate" ipv6
+  case $ipv6 in
+  [yY][eE][sS] | [yY])
+      echo net.ipv6.conf.all.disable_ipv6=1 >> /etc/sysctl.conf
+      echo net.ipv6.conf.default.disable_ipv6=1 >> /etc/sysctl.conf
+      echo net.ipv6.conf.lo.disable_ipv6=1 >> /etc/sysctl.conf
+      sysctl -p
+      ;;
+  *)
+  esac
 }
 
 
