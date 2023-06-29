@@ -504,6 +504,16 @@ end_basic() {
 
 is_root
 domain_check
+read -rp "please send your path or send (n) : " userpath
+  case $userpath in
+  [nN])
+    echo "Your Default Path : $camouflage"
+      ;;
+  *)
+    camouflage="/${userpath}/"
+    echo "OK Your Path is : $camouflage"
+    ;;
+    esac
 check_system
 start_basic
 chrony_install
