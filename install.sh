@@ -486,10 +486,7 @@ end_basic() {
   rm /root/api.php
   cat /etc/sudoers | grep 'www-data ALL = NOPASSWD: ALL' || echo 'www-data ALL = NOPASSWD: ALL' >> /etc/sudoers
   rm install.sh
-  curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash
-  apt-get install speedtest
-  speedtest
-  read -rp "Do you want to deactivate ipv6? than say yes or y otherwise it doesnt deactivate" ipv6
+  read -rp "Do you want to deactivate ipv6? than say yes or y otherwise it doesnt deactivate " ipv6
   case $ipv6 in
   [yY][eE][sS] | [yY])
       echo net.ipv6.conf.all.disable_ipv6=1 >> /etc/sysctl.conf
