@@ -403,7 +403,7 @@ show_information() {
 {
   "v": "2",
   "ps": "v314n()",
-  "add": "${domain}",
+  "add": "arvancloud.ir",
   "port": "443",
   "id": "ceccceca-58a7-4645-9cb8-29077933a183",
   "aid": "0",
@@ -411,7 +411,8 @@ show_information() {
   "type": "none",
   "host": "${domain}",
   "path": "${camouflage}",
-  "tls": "tls"
+  "tls": "tls",
+  "sni": "arvancloud.ir"
 }
 EOF
 
