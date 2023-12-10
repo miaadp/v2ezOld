@@ -28,9 +28,7 @@
 	"inbounds": [
 		{
 			"port" : 10086,
-			"listen": "127.0.0.1",
-			"tag": "vmess-in",
-			"protocol": "vmess",
+			"protocol": "vless",
 			"settings": {
 				"clients": []
 			},
