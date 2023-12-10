@@ -30,7 +30,8 @@
 			"port" : 10086,
 			"protocol": "vless",
 			"settings": {
-				"clients": []
+				"clients": [],
+        			"decryption": "none"
 			},
 			"streamSettings": {
 				"network": "ws",
