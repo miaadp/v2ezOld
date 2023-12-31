@@ -549,6 +549,7 @@ read -rp "please send your path or send (n) : " userpath
     echo "OK Your Path is : $camouflage"
     ;;
     esac
+read -rp "Please Select Mode : (1) : Install From SSL | (2) : Install Dont SSL " mode_install
 
     check_system
     start_basic
@@ -563,7 +564,6 @@ read -rp "please send your path or send (n) : " userpath
     nginx_exist_check
     v2ray_conf_add_ws
 
-read -rp "Please Select Mode : (1) : Install From SSL | (2) : Install Dont SSL " mode_install
   case $mode_install in
   [1])
     echo "Ok You Selected INSTALL FROM SSL ..."
