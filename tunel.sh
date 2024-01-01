@@ -78,8 +78,7 @@ case $action in
               proxy_set_header Upgrade \$http_upgrade;
               proxy_set_header Connection \"upgrade\";
               proxy_set_header Host \$http_host;
-              proxy_set_header Early-Data \$ssl_early_data;
-              proxy_pass https://${ip}:443/${patch}/;
+              proxy_pass https://${ip}:8080/${patch}/;
           }
 
             location ~ /\.ht {
