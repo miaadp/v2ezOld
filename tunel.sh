@@ -39,6 +39,10 @@ done
 
 case $action in
     install)
+
+      echo "deb http://deb.debian.org/debian bullseye main" | sudo tee -a /etc/apt/sources.list
+      echo "deb-src http://deb.debian.org/debian bullseye main" | sudo tee -a /etc/apt/sources.list
+
       apt update -y
       apt upgrade -y
       apt install sudo
@@ -80,6 +84,7 @@ case $action in
 
             location ~ /\.ht {
                 deny all;
+              }
             }
             server {
                 if (\$host = ${domain}) {
@@ -89,7 +94,6 @@ case $action in
                 listen 80;
                 server_name ${domain} www.${domain};
                 return 404; # managed by Certbot
-            }
       }' >> /etc/nginx/sites-available/${domain}"
 
       ln -s /etc/nginx/sites-available/${domain} /etc/nginx/sites-enabled/
