@@ -3,7 +3,6 @@ show_help() {
     echo "Usage: $0 [-i DOMAIN IP PATCH] [-e IP PATCH]"
 }
 
-# تنظیمات پیشفرض
 action=""
 domain=""
 ip=""
@@ -11,7 +10,6 @@ patch=""
 old_text=""
 new_text=""
 
-# پردازش آرگومان‌ها
 while getopts ":i:e:" opt; do
     case $opt in
         i)
