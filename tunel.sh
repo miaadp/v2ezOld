@@ -81,6 +81,15 @@ case $action in
             location ~ /\.ht {
                 deny all;
             }
+            server {
+                if (\$host = ${domain}) {
+                    return 301 https://\$host\$request_uri;
+                }
+
+                listen 80;
+                server_name ${domain} www.${domain};
+                return 404; # managed by Certbot
+            }
       }' >> /etc/nginx/sites-available/${domain}"
 
       ln -s /etc/nginx/sites-available/${domain} /etc/nginx/sites-enabled/
