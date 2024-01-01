@@ -305,7 +305,7 @@ acme() {
   fi
 }
 
-v2ray_conf_add_tls() {
+v2ray_conf_add_ws() {
   cd /etc/v2ray || exit
   wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/config.json -O config.json
   wget --no-check-certificate https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat -O dlc.dat
@@ -321,7 +321,7 @@ old_config_exist_check() {
   fi
 }
 
-nginx_conf_add() {
+nginx_conf_add_ssl() {
   touch ${nginx_conf_dir}/v2ray.conf
   cat >${nginx_conf_dir}/v2ray.conf <<EOF
     server {
@@ -376,7 +376,45 @@ EOF
   modify_nginx_other
   judge "Nginx configuration modification"
 }
+nginx_conf_add_dssl() {
+  touch ${nginx_conf_dir}/v2ray.conf
+  cat >${nginx_conf_dir}/v2ray.conf <<EOF
+    listen 8080;
+      server_name serveraddr.com;
+            index index.php index.html index.htm;
+            root  /home/wwwroot/3DCEList;
+            error_page 400 = /400.html;
 
+        location /ray/
+            proxy_redirect off;
+            proxy_read_timeout 1200s;
+            proxy_pass http://127.0.0.1:10000;
+            proxy_http_version 1.1;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $http_host;
+            }
+            location /api.php {
+              include fastcgi_params;
+              fastcgi_intercept_errors on;
+              fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+              fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
+            }
+    }
+      server {
+      listen 80;
+      listen [::]:80;
+      server_name serveraddr.com;
+      return 301 https://use.shadowsocksr.win\$request_uri;
+      }
+EOF
+
+  modify_nginx_port
+  modify_nginx_other
+  judge "Nginx configuration modification"
+}
 start_process_systemd() {
   systemctl daemon-reload
   chown -R root.root /var/log/v2ray/
@@ -512,19 +550,35 @@ read -rp "please send your path or send (n) : " userpath
     echo "OK Your Path is : $camouflage"
     ;;
     esac
-check_system
-start_basic
-chrony_install
-dependency_install
-basic_optimization
-old_config_exist_check
-port_alterid_set
-v2ray_install
-port_exist_check 80
-port_exist_check "${port}"
-nginx_exist_check
-v2ray_conf_add_tls
-nginx_conf_add
+read -rp "Please Select Mode : (1) : Install From SSL | (2) : Install Dont SSL " mode_install
+
+    check_system
+    start_basic
+    chrony_install
+    dependency_install
+    basic_optimization
+    old_config_exist_check
+    port_alterid_set
+    v2ray_install
+    port_exist_check 80
+    port_exist_check "${port}"
+    nginx_exist_check
+    v2ray_conf_add_ws
+
+  case $mode_install in
+  [1])
+    echo "Ok You Selected INSTALL FROM SSL ..."
+    nginx_conf_add_ssl
+      ;;
+      [2])
+    echo "Ok You Selected INSTALL Dont SSL ..."
+    nginx_conf_add_dssl
+          ;;
+      *)
+    nginx_conf_add_dssl
+    ;;
+    esac
+
 web_camouflage
 read -rp "Do you want to continue? It will check domain ip, some make sure any cloud is off" test
 ssl_judge_and_install
