@@ -43,48 +43,14 @@ case $action in
       apt upgrade -y
       apt install sudo
       sudo apt install nginx certbot python3-certbot-nginx ufw -y
-      ufw allow 'Nginx HTTP' ufw allow 'Nginx HTTPS' ufw enable -n
+      ufw allow 'Nginx HTTP' ufw allow 'Nginx HTTPS' ufw allow 80 ufw enable -n
       mkdir /var/www/${domain}
       chown -R $USER:$USER /var/www/${domain}
 
+      rm -r /etc/nginx/sites-available/${domain}
+      rm -r /etc/nginx/sites-enabled/${domain}
+
       bash -c "echo 'server {
-            listen 443 ssl;
-            server_name ${domain} www.${domain};
-            root /var/www/${domain};
-
-            index index.php index.html index.htm;
-
-          location / {
-              try_files \$uri \$uri/ =404;
-          }
-
-          location /${patch}/
-          {
-              proxy_redirect off;
-              proxy_read_timeout 1200s;
-              proxy_buffering    off;
-              proxy_buffer_size  128k;
-              proxy_buffers 100  128k;
-              proxy_http_version 1.1;
-              proxy_set_header X-Real-IP \$remote_addr;
-              proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-              proxy_set_header Upgrade \$http_upgrade;
-              proxy_set_header Connection \"upgrade\";
-              proxy_set_header Host \$http_host;
-              proxy_set_header Early-Data \$ssl_early_data;
-              proxy_pass https://${ip}:443/${patch}/;
-          }
-
-            location ~ /\.ht {
-                deny all;
-            }
-
-            ssl_certificate /etc/letsencrypt/live/${domain}/fullchain.pem;
-            ssl_certificate_key /etc/letsencrypt/live/${domain}/privkey.pem;
-            include /etc/letsencrypt/options-ssl-nginx.conf;
-            ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-        }
-        server {
             listen 8080;
             server_name ${domain} www.${domain};
             root /var/www/${domain};
@@ -116,23 +82,13 @@ case $action in
                 deny all;
             }
         }
-        server {
-            if (\$host = ${domain}) {
-                return 301 https://\$host\$request_uri;
-            }
-
-            listen 80;
-            server_name ${domain} www.${domain};
-            return 404; # managed by Certbot
-        }
-
       }' >> /etc/nginx/sites-available/${domain}"
 
       ln -s /etc/nginx/sites-available/${domain} /etc/nginx/sites-enabled/
       unlink /etc/nginx/sites-enabled/default
       sed -i 's/try_files  \/ =404;/try_files $uri $uri\/ =404;/' /etc/nginx/sites-available/${domain}
       systemctl reload nginx
-      certbot certonly --standalone -d ${domain} -d www.${domain} --email amir2222@gmail.com --agree-tos --non-interactive
+      certbot certonly --standalone -d ${domain} -d ${domain} --email amir2222@gmail.com --agree-tos --non-interactive
       systemctl reload nginx
         ;;
     edit)
