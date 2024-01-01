@@ -81,7 +81,6 @@ case $action in
             location ~ /\.ht {
                 deny all;
             }
-        }
       }' >> /etc/nginx/sites-available/${domain}"
 
       ln -s /etc/nginx/sites-available/${domain} /etc/nginx/sites-enabled/
