@@ -41,23 +41,23 @@ case $action in
     install)
       apt update -y
       apt upgrade -y
-      apt install sudo nginx certbot python3-certbot-nginx ufw -y
+      apt install sudo
+      sudo apt install nginx certbot python3-certbot-nginx ufw -y
       ufw allow 'Nginx HTTP' ufw allow 'Nginx HTTPS' ufw enable -n
       mkdir /var/www/${domain}
       chown -R $USER:$USER /var/www/${domain}
 
       bash -c "echo 'server {
-        server {
-            listen 443 ssl; # managed by Certbot
+            listen 443 ssl;
             server_name ${domain} www.${domain};
             root /var/www/${domain};
-        
+
             index index.php index.html index.htm;
-        
+
           location / {
               try_files \$uri \$uri/ =404;
           }
-        
+
           location /${patch}/
           {
               proxy_redirect off;
@@ -74,7 +74,7 @@ case $action in
               proxy_set_header Early-Data \$ssl_early_data;
               proxy_pass https://${ip}:443/${patch}/;
           }
-        
+
             location ~ /\.ht {
                 deny all;
             }
@@ -88,13 +88,13 @@ case $action in
             listen 8080;
             server_name ${domain} www.${domain};
             root /var/www/${domain};
-        
+
             index index.php index.html index.htm;
-        
-            location / {
-                try_files $uri $uri/ =404;
-            }
-        
+
+          location / {
+              try_files \$uri \$uri/ =404;
+          }
+
           location /${patch}/
           {
               proxy_redirect off;
@@ -111,7 +111,7 @@ case $action in
               proxy_set_header Early-Data \$ssl_early_data;
               proxy_pass https://${ip}:443/${patch}/;
           }
-        
+
             location ~ /\.ht {
                 deny all;
             }
@@ -120,7 +120,7 @@ case $action in
             if (\$host = ${domain}) {
                 return 301 https://\$host\$request_uri;
             }
-        
+
             listen 80;
             server_name ${domain} www.${domain};
             return 404; # managed by Certbot
