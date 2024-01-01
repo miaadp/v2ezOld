@@ -18,7 +18,7 @@ while getopts ":i:e:" opt; do
             action="install"
             domain="$OPTARG"
             ip="$3"
-            patch="$4"  # مقدار آرگومان بعدی
+            patch="$4" 
             ;;
         e)
             action="edit"
