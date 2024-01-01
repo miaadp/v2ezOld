@@ -39,7 +39,6 @@ while getopts ":i:e:" opt; do
     esac
 done
 
-# اجرای عملیات مربوطه
 case $action in
     install)
       apt update -y
@@ -95,7 +94,6 @@ case $action in
     echo "successfully changed"
         ;;
     *)
-        # در صورتی که یک عملیات ناشناخته تعیین شود
         echo "Unknown action: $action"
         show_help
         exit 1
