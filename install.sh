@@ -379,28 +379,29 @@ EOF
 nginx_conf_add_dssl() {
   touch ${nginx_conf_dir}/v2ray.conf
   cat >${nginx_conf_dir}/v2ray.conf <<EOF
+  server{
     listen 8080;
       server_name serveraddr.com;
             index index.php index.html index.htm;
             root  /home/wwwroot/3DCEList;
             error_page 400 = /400.html;
 
-        location /ray/
+        location /ray/{
             proxy_redirect off;
             proxy_read_timeout 1200s;
             proxy_pass http://127.0.0.1:10000;
             proxy_http_version 1.1;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header X-Real-IP \$remote_addr;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+            proxy_set_header Upgrade \$http_upgrade;
             proxy_set_header Connection "upgrade";
-            proxy_set_header Host $http_host;
+            proxy_set_header Host \$http_host;
             }
             location /api.php {
               include fastcgi_params;
               fastcgi_intercept_errors on;
               fastcgi_pass unix:/run/php/php8.1-fpm.sock;
-              fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
+              fastcgi_param SCRIPT_FILENAME \$document_root/\$fastcgi_script_name;
             }
     }
       server {
