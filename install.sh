@@ -386,7 +386,8 @@ nginx_conf_add_dssl() {
             root  /home/wwwroot/3DCEList;
             error_page 400 = /400.html;
 
-        location /ray/{
+        location /ray/
+        {
             proxy_redirect off;
             proxy_read_timeout 1200s;
             proxy_pass http://127.0.0.1:10000;
@@ -521,8 +522,8 @@ tls_type() {
 }
 
 end_basic() {
-  systemctl restart v2ray && systemctl restart nginx
   cp /root/api.php /home/wwwroot/3DCEList/api.php
+  systemctl restart v2ray && systemctl restart nginx
   rm /root/api.php
   cat /etc/sudoers | grep 'www-data ALL = NOPASSWD: ALL' || echo 'www-data ALL = NOPASSWD: ALL' >> /etc/sudoers
   rm install.sh
