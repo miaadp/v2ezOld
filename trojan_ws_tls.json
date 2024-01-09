@@ -30,12 +30,10 @@
       "port" : 10086,
       "protocol": "trojan",
       "settings": {
-        "clients": [],
-        "decryption": "none"
+        "clients": []
       },
       "streamSettings": {
         "network": "ws",
-        "security": "tls",
         "wsSettings": {
           "path": "/e01ec5ea/"
         }
