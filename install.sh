@@ -305,8 +305,19 @@ acme() {
   fi
 }
 
-v2ray_conf_add_ws() {
+v2ray_conf_add() {
   cd /etc/v2ray || exit
+
+  local ws_mode="${1:-}"
+
+    if [ "$ws_mode" == "ws_tls" ]; then
+      wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/trojan_ws_tls.json -O config.json
+    elif [ "$ws_mode" == "ws" ]; then
+      wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/config.json -O config.json
+    else
+      wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/config.json -O config.json
+    fi
+
   wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/config.json -O config.json
   wget --no-check-certificate https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat -O dlc.dat
   wget --no-check-certificate https://github.com/bootmortis/iran-hosted-domains/releases/latest/download/iran.dat -O iran.dat
@@ -553,6 +564,7 @@ read -rp "please send your path or send (n) : " userpath
     ;;
     esac
 read -rp "Please Select Mode : (1) : Install From SSL | (2) : Install Dont SSL " mode_install
+read -rp "Please Select Mode : (1) : Install Vless + Ws | (2) : Install Trojan + Ws + Tls " protocol_mode
 
     check_system
     start_basic
@@ -565,7 +577,20 @@ read -rp "Please Select Mode : (1) : Install From SSL | (2) : Install Dont SSL "
     port_exist_check 80
     port_exist_check "${port}"
     nginx_exist_check
-    v2ray_conf_add_ws
+
+  case $mode_install in
+  [1])
+    echo "Ok You Selected INSTALL Vless + Ws ..."
+    v2ray_conf_add = 'ws'
+      ;;
+      [2])
+    echo "Ok You Selected INSTALL Trojan + Ws + Tls ..."
+    v2ray_conf_add = 'ws_tls'
+          ;;
+      *)
+    v2ray_conf_add = 'ws'
+    ;;
+    esac
 
   case $mode_install in
   [1])
@@ -580,6 +605,7 @@ read -rp "Please Select Mode : (1) : Install From SSL | (2) : Install Dont SSL "
     nginx_conf_add_dssl
     ;;
     esac
+
 
 web_camouflage
 read -rp "Do you want to continue? It will check domain ip, some make sure any cloud is off" test
