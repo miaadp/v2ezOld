@@ -316,19 +316,19 @@ v2ray_conf_add() {
   elif [ "$ws_mode" == "vless_ws" ]; then
     wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vless_ws.json -O config.json
     port_nginx='8080'
-    nginx_normal
+    nginx_normal "$port_nginx"
   elif [ "$ws_mode" == "vmess_ws" ]; then
     wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_ws.json -O config.json
     port_nginx='80'
-    nginx_normal
+    nginx_normal "$port_nginx"
   elif [ "$ws_mode" == "vmess_tcp" ]; then
     wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_tcp.json -O config.json
     port_nginx=$((RANDOM % (65535 - 10000 + 1) + min_port))
-    nginx_normal
+    nginx_normal "$port_nginx"
   elif [ "$ws_mode" == "vmess_grpc" ]; then
     wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_grpc.json -O config.json
     port_nginx='2087'
-    nginx_normal
+    nginx_normal "$port_nginx"
   fi
 
   wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/config.json -O config.json
@@ -337,6 +337,7 @@ v2ray_conf_add() {
   modify_path
   modify_inbound_port
 }
+
 
 
 old_config_exist_check() {
@@ -402,41 +403,43 @@ EOF
   judge "Nginx configuration modification"
 }
 nginx_normal() {
-  touch ${nginx_conf_dir}/v2ray.conf
-  cat >${nginx_conf_dir}/v2ray.conf <<EOF
-  server{
-    listen port;
-      server_name serveraddr.com;
-            index index.php index.html index.htm;
-            root  /home/wwwroot/3DCEList;
-            error_page 400 = /400.html;
+  local port_nginx="$1"
 
-        location /ray/
-        {
-            proxy_redirect off;
-            proxy_read_timeout 1200s;
-            proxy_pass http://127.0.0.1:10000;
-            proxy_http_version 1.1;
-            proxy_set_header X-Real-IP \$remote_addr;
-            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-            proxy_set_header Upgrade \$http_upgrade;
-            proxy_set_header Connection "upgrade";
-            proxy_set_header Host \$http_host;
-            }
-            location /api.php {
-              include fastcgi_params;
-              fastcgi_intercept_errors on;
-              fastcgi_pass unix:/run/php/php8.1-fpm.sock;
-              fastcgi_param SCRIPT_FILENAME \$document_root/\$fastcgi_script_name;
-            }
-    }
+  touch "${nginx_conf_dir}/v2ray.conf"
+  cat >"${nginx_conf_dir}/v2ray.conf" <<EOF
+server {
+  listen ${port_nginx};
+  server_name serveraddr.com;
+  index index.php index.html index.htm;
+  root  /home/wwwroot/3DCEList;
+  error_page 400 = /400.html;
+
+  location /ray/ {
+    proxy_redirect off;
+    proxy_read_timeout 1200s;
+    proxy_pass http://127.0.0.1:10000;
+    proxy_http_version 1.1;
+    proxy_set_header X-Real-IP \$remote_addr;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_set_header Upgrade \$http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host \$http_host;
+  }
+
+  location /api.php {
+    include fastcgi_params;
+    fastcgi_intercept_errors on;
+    fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+    fastcgi_param SCRIPT_FILENAME \$document_root/\$fastcgi_script_name;
+  }
+}
 EOF
 
-  sed -i "/listen/c \\\listen ${port_nginx};" ${nginx_conf_dir}/v2ray.conf
   modify_nginx_port
   modify_nginx_other
   judge "Nginx configuration modification"
 }
+
 start_process_systemd() {
   systemctl daemon-reload
   chown -R root.root /var/log/v2ray/
