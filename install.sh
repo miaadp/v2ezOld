@@ -128,8 +128,7 @@ modify_path() {
 }
 
 modify_inbound_port() {
-  PORT=$((RANDOM + 10000))
-  sed -i "/\"port\" /c  \    			\"port\":${PORT}," ${v2ray_conf}
+  sed -i "/\"port\" /c  \    			\"port\":25050," ${v2ray_conf}
   judge "V2ray inbound_port modification"
 }
 
@@ -143,7 +142,7 @@ modify_nginx_port() {
 modify_nginx_other() {
   sed -i "/server_name/c \\\tserver_name ${domain};" ${nginx_conf}
   #sed -i "/location \/ray/c \\\tlocation ${camouflage}" ${nginx_conf}
-  sed -i "/proxy_pass/c \\\tproxy_pass http://127.0.0.1:${PORT};" ${nginx_conf}
+  sed -i "/proxy_pass/c \\\tproxy_pass http://127.0.0.1:25050;" ${nginx_conf}
   sed -i "/return/c \\\treturn 301 https://${domain}\$request_uri;" ${nginx_conf}
 }
 
