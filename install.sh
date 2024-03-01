@@ -310,26 +310,26 @@ v2ray_conf_add() {
 
   local ws_mode="${1:-}"
 
-    if [ "$ws_mode" == "trojan_ws_tls" ]; then
-      wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/trojan_trojan_ws_tls.json -O config.json
-      nginx_ws_tls
-    elif [ "$ws_mode" == "vless_ws" ]; then
-      wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vless_ws.json -O config.json
-      port_nginx = '8080'
-      nginx_normal
-          elif [ "$ws_mode" == "vmess_ws" ]; then
-            wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_ws.json -O config.json
-            port_nginx = '80'
-            nginx_normal
-                elif [ "$ws_mode" == "vmess_tcp" ]; then
-                  wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_tcp.json -O config.json
-                  port_nginx=$((RANDOM % (65535 - 10000 + 1) + min_port))
-                  nginx_normal
-                      elif [ "$ws_mode" == "vmess_grpc" ]; then
-                        wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_grpc.json -O config.json
-                        port_nginx = '2087'
-                        nginx_normal
-    fi
+  if [ "$ws_mode" == "trojan_ws_tls" ]; then
+    wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/trojan_trojan_ws_tls.json -O config.json
+    nginx_ws_tls
+  elif [ "$ws_mode" == "vless_ws" ]; then
+    wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vless_ws.json -O config.json
+    port_nginx='8080'
+    nginx_normal
+  elif [ "$ws_mode" == "vmess_ws" ]; then
+    wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_ws.json -O config.json
+    port_nginx='80'
+    nginx_normal
+  elif [ "$ws_mode" == "vmess_tcp" ]; then
+    wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_tcp.json -O config.json
+    port_nginx=$((RANDOM % (65535 - 10000 + 1) + min_port))
+    nginx_normal
+  elif [ "$ws_mode" == "vmess_grpc" ]; then
+    wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_grpc.json -O config.json
+    port_nginx='2087'
+    nginx_normal
+  fi
 
   wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/config.json -O config.json
   wget --no-check-certificate https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat -O dlc.dat
@@ -337,6 +337,7 @@ v2ray_conf_add() {
   modify_path
   modify_inbound_port
 }
+
 
 old_config_exist_check() {
   if [[ -f $v2ray_qr_config_file ]]; then
@@ -401,8 +402,8 @@ EOF
   judge "Nginx configuration modification"
 }
 nginx_normal() {
-  touch ${nginx_conf}
-  cat >${nginx_conf} <<EOF
+  touch ${nginx_conf_dir}/v2ray.conf
+  cat >${nginx_conf_dir}/v2ray.conf <<EOF
   server{
     listen port;
       server_name serveraddr.com;
@@ -431,7 +432,7 @@ nginx_normal() {
     }
 EOF
 
-  sed -i "/listen/c \\\listen ${port_nginx};" ${nginx_conf}
+  sed -i "/listen/c \\\listen ${port_nginx};" ${nginx_conf_dir}/v2ray.conf
   modify_nginx_port
   modify_nginx_other
   judge "Nginx configuration modification"
