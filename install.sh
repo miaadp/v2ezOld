@@ -310,12 +310,25 @@ v2ray_conf_add() {
 
   local ws_mode="${1:-}"
 
-    if [ "$ws_mode" == "ws_tls" ]; then
-      wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/trojan_ws_tls.json -O config.json
-    elif [ "$ws_mode" == "ws" ]; then
-      wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/config.json -O config.json
-    else
-      wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/config.json -O config.json
+    if [ "$ws_mode" == "trojan_ws_tls" ]; then
+      wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/trojan_trojan_ws_tls.json -O config.json
+      nginx_ws_tls
+    elif [ "$ws_mode" == "vless_ws" ]; then
+      wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vless_ws.json -O config.json
+      port_nginx = '8080'
+      nginx_normal
+          elif [ "$ws_mode" == "vmess_ws" ]; then
+            wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_ws.json -O config.json
+            port_nginx = '80'
+            nginx_normal
+                elif [ "$ws_mode" == "vmess_tcp" ]; then
+                  wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_tcp.json -O config.json
+                  port_nginx=$((RANDOM % (65535 - 10000 + 1) + min_port))
+                  nginx_normal
+                      elif [ "$ws_mode" == "vmess_grpc" ]; then
+                        wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_grpc.json -O config.json
+                        port_nginx = '2087'
+                        nginx_normal
     fi
 
   wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/config.json -O config.json
@@ -332,7 +345,7 @@ old_config_exist_check() {
   fi
 }
 
-nginx_conf_add_ssl() {
+nginx_ws_tls() {
   touch ${nginx_conf_dir}/v2ray.conf
   cat >${nginx_conf_dir}/v2ray.conf <<EOF
     server {
@@ -387,11 +400,11 @@ EOF
   modify_nginx_other
   judge "Nginx configuration modification"
 }
-nginx_conf_add_dssl() {
-  touch ${nginx_conf_dir}/v2ray.conf
-  cat >${nginx_conf_dir}/v2ray.conf <<EOF
+nginx_normal() {
+  touch ${nginx_conf}
+  cat >${nginx_conf} <<EOF
   server{
-    listen 8080;
+    listen port;
       server_name serveraddr.com;
             index index.php index.html index.htm;
             root  /home/wwwroot/3DCEList;
@@ -416,14 +429,9 @@ nginx_conf_add_dssl() {
               fastcgi_param SCRIPT_FILENAME \$document_root/\$fastcgi_script_name;
             }
     }
-      server {
-      listen 80;
-      listen [::]:80;
-      server_name serveraddr.com;
-      return 301 https://use.shadowsocksr.win\$request_uri;
-      }
 EOF
 
+  sed -i "/listen/c \\\listen ${port_nginx};" ${nginx_conf}
   modify_nginx_port
   modify_nginx_other
   judge "Nginx configuration modification"
@@ -449,27 +457,97 @@ acme_cron_update() {
 }
 
 show_information() {
-  echo -e "${OK} ${GreenBG} V2ray+ws+tls installed successfully"
-  cat > test.json <<-EOF
-{
-  "v": "2",
-  "ps": "v314n()",
-  "add": "arvancloud.ir",
-  "port": "443",
-  "id": "ceccceca-58a7-4645-9cb8-29077933a183",
-  "aid": "0",
-  "net": "ws",
-  "type": "none",
-  "host": "${domain}",
-  "path": "${camouflage}",
-  "tls": "tls",
-  "sni": "arvancloud.ir"
-}
+  echo -e "${OK} ${GreenBG} ${ws_mode} installed successfully"
+
+  case "$ws_mode" in
+    "vmess_ws")
+      cat > test.json <<-EOF
+        {
+          "v": "2",
+          "ps": "v314n()",
+          "add": "${hostname}",
+          "port": "80",
+          "id": "c533f73c-9a33-4f84-baa3-4f30aeb0777e",
+          "aid": "0",
+          "scy": "auto",
+          "net": "ws",
+          "type": "none",
+          "host": "${domain}",
+          "path": "/",
+          "tls": "",
+          "sni": "",
+          "alpn": "",
+          "fp": ""
+        }
 EOF
+      ;;
+    "vmess_tcp")
+      cat > test.json <<-EOF
+        {
+          "v": "2",
+          "ps": "v314n()",
+          "add": "${domain}",
+          "port": "${port_nginx}",
+          "id": "c533f73c-9a33-4f84-baa3-4f30aeb0777e",
+          "aid": "0",
+          "scy": "auto",
+          "net": "tcp",
+          "type": "http",
+          "host": "varzesh3.com",
+          "path": "/",
+          "tls": "",
+          "sni": "",
+          "alpn": "",
+          "fp": ""
+        }
+EOF
+      ;;
+    "vmess_grpc")
+      cat > test.json <<-EOF
+        {
+          "v": "2",
+          "ps": "v314n()",
+          "add": "${hostname}",
+          "port": "${port_nginx}",
+          "id": "c533f73c-9a33-4f84-baa3-4f30aeb0777e",
+          "aid": "0",
+          "scy": "auto",
+          "serviceName":"ponisha.ir",
+          "net": "grpc",
+          "type": "gun",
+          "host": "",
+          "path": "ponisha.ir",
+          "tls": "tls",
+          "sni": "${domain}",
+          "alpn": "",
+          "fp": ""
+        }
+EOF
+      ;;
+    *)
+      cat > test.json <<-EOF
+        {
+          "v": "2",
+          "ps": "v314n()",
+          "add": "arvancloud.ir",
+          "port": "443",
+          "id": "ceccceca-58a7-4645-9cb8-29077933a183",
+          "aid": "0",
+          "net": "ws",
+          "type": "none",
+          "host": "${domain}",
+          "path": "${camouflage}",
+          "tls": "tls",
+          "sni": "arvancloud.ir"
+        }
+EOF
+      ;;
+  esac
 
   echo "vmess://$(base64 -w 0 test.json)"
   rm test.json
 }
+
 
 ssl_judge_and_install() {
     if [[ -f "/data/v2ray.key" || -f "/data/v2ray.crt" ]]; then
@@ -553,18 +631,22 @@ end_basic() {
 
 is_root
 domain_check
-read -rp "please send your path or send (n) : " userpath
+read -rp "please send your path or send (n = null | r = random) : " userpath
+read -rp "please send your hostname : " hostname
+
   case $userpath in
-  [nN])
+  [rR])
     echo "Your Default Path : $camouflage"
       ;;
+    [nN])
+    camouflage="/"
+    echo "OK Your patch is null"
   *)
     camouflage="/${userpath}/"
     echo "OK Your Path is : $camouflage"
     ;;
     esac
-read -rp "Please Select Mode : (1) : Install From SSL | (2) : Install Dont SSL " mode_install
-read -rp "Please Select Mode : (1) : Install Vless + Ws | (2) : Install Trojan + Ws + Tls " protocol_mode
+read -rp "Please Select Mode : (1) : Install Vless + Ws | (2) : Install Trojan + Ws + Tls | (3) : Vmess + Ws | (4) : Vmess + tcp | (5) : Vmess + grpc + tls " mode_install
 
     check_system
     start_basic
@@ -581,28 +663,27 @@ read -rp "Please Select Mode : (1) : Install Vless + Ws | (2) : Install Trojan +
   case $mode_install in
   [1])
     echo "Ok You Selected INSTALL Vless + Ws ..."
-    v2ray_conf_add = 'ws'
+    v2ray_conf_add = 'vless_ws'
       ;;
       [2])
     echo "Ok You Selected INSTALL Trojan + Ws + Tls ..."
-    v2ray_conf_add = 'ws_tls'
+    v2ray_conf_add = 'trojan_ws_tls'
           ;;
+          [3])
+            echo "Ok You Selected INSTALL Vmess + Ws ..."
+            v2ray_conf_add = 'vmess_ws'
+              ;;
+                      [4])
+                        echo "Ok You Selected INSTALL Vmess + Tcp ..."
+                        v2ray_conf_add = 'vmess_tcp'
+                          ;;
+                                              [5])
+                                                echo "Ok You Selected INSTALL Vmess + grpc + tls ..."
+                                                v2ray_conf_add = 'vmess_grpc'
+                                                  ;;
       *)
-    v2ray_conf_add = 'ws'
-    ;;
-    esac
-
-  case $mode_install in
-  [1])
-    echo "Ok You Selected INSTALL FROM SSL ..."
-    nginx_conf_add_ssl
-      ;;
-      [2])
-    echo "Ok You Selected INSTALL Dont SSL ..."
-    nginx_conf_add_dssl
-          ;;
-      *)
-    nginx_conf_add_dssl
+    echo "error"
+    exit;
     ;;
     esac
 
