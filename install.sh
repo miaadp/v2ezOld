@@ -634,18 +634,20 @@ domain_check
 read -rp "please send your path or send (n = null | r = random) : " userpath
 read -rp "please send your hostname : " hostname
 
-  case $userpath in
+case $userpath in
   [rR])
     echo "Your Default Path : $camouflage"
-      ;;
-    [nN])
+    ;;
+  [nN])
     camouflage="/"
     echo "OK Your patch is null"
+    ;;
   *)
     camouflage="/${userpath}/"
     echo "OK Your Path is : $camouflage"
     ;;
-    esac
+esac
+
 read -rp "Please Select Mode : (1) : Install Vless + Ws | (2) : Install Trojan + Ws + Tls | (3) : Vmess + Ws | (4) : Vmess + tcp | (5) : Vmess + grpc + tls " mode_install
 
     check_system
