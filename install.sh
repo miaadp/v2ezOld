@@ -142,7 +142,7 @@ modify_nginx_port() {
 
 modify_nginx_other() {
   sed -i "/server_name/c \\\tserver_name ${domain};" ${nginx_conf}
-  sed -i "/location \/ray/c \\\tlocation ${camouflage}" ${nginx_conf}
+  #sed -i "/location \/ray/c \\\tlocation ${camouflage}" ${nginx_conf}
   sed -i "/proxy_pass/c \\\tproxy_pass http://127.0.0.1:${PORT};" ${nginx_conf}
   sed -i "/return/c \\\treturn 301 https://${domain}\$request_uri;" ${nginx_conf}
 }
@@ -401,14 +401,6 @@ EOF
   judge "Nginx configuration modification"
 }
 nginx_normal() {
-  echo '
-  WEWRX
-  ASSAD
-  ECDSA
-  SAFSA
-  HDFHR
-  AEWTH
-  '
   local port_nginx="$1"
 
   touch "${nginx_conf_dir}/v2ray.conf"
@@ -420,7 +412,7 @@ server {
   root  /home/wwwroot/3DCEList;
   error_page 400 = /400.html;
 
-  location /ray/ {
+  location / {
     proxy_redirect off;
     proxy_read_timeout 1200s;
     proxy_pass http://127.0.0.1:10000;
@@ -441,7 +433,6 @@ server {
 }
 EOF
 
-  modify_nginx_port
   modify_nginx_other
   judge "Nginx configuration modification"
 }
