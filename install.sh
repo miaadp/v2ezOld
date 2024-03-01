@@ -306,32 +306,30 @@ acme() {
 }
 
 v2ray_conf_add() {
-  cd /etc/v2ray || exit
 
   local ws_mode="${1:-}"
 
   if [ "$ws_mode" == "trojan_ws_tls" ]; then
-    wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/trojan_trojan_ws_tls.json -O config.json
+    wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/trojan_trojan_ws_tls.json -O /etc/v2ray/config.json
     nginx_ws_tls
   elif [ "$ws_mode" == "vless_ws" ]; then
-    wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vless_ws.json -O config.json
+    wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vless_ws.json -O /etc/v2ray/config.json
     port_nginx='8080'
     nginx_normal "$port_nginx"
   elif [ "$ws_mode" == "vmess_ws" ]; then
-    wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_ws.json -O config.json
+    wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_ws.json -O /etc/v2ray/config.json
     port_nginx='80'
     nginx_normal "$port_nginx"
   elif [ "$ws_mode" == "vmess_tcp" ]; then
-    wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_tcp.json -O config.json
+    wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_tcp.json -O /etc/v2ray/config.json
     port_nginx=$((RANDOM % (65535 - 10000 + 1) + min_port))
     nginx_normal "$port_nginx"
   elif [ "$ws_mode" == "vmess_grpc" ]; then
-    wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_grpc.json -O config.json
+    wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_grpc.json -O /etc/v2ray/config.json
     port_nginx='2087'
     nginx_normal "$port_nginx"
   fi
 
-  wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/config.json -O config.json
   wget --no-check-certificate https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat -O dlc.dat
   wget --no-check-certificate https://github.com/bootmortis/iran-hosted-domains/releases/latest/download/iran.dat -O iran.dat
   modify_path
@@ -403,6 +401,14 @@ EOF
   judge "Nginx configuration modification"
 }
 nginx_normal() {
+  echo '
+  WEWRX
+  ASSAD
+  ECDSA
+  SAFSA
+  HDFHR
+  AEWTH
+  '
   local port_nginx="$1"
 
   touch "${nginx_conf_dir}/v2ray.conf"
@@ -668,23 +674,23 @@ read -rp "Please Select Mode : (1) : Install Vless + Ws | (2) : Install Trojan +
       case $mode_install in
       [1])
         echo "Ok You Selected INSTALL Vless + Ws ..."
-        v2ray_conf_add = 'vless_ws'
+        v2ray_conf_add 'vless_ws'
           ;;
           [2])
         echo "Ok You Selected INSTALL Trojan + Ws + Tls ..."
-        v2ray_conf_add = 'trojan_ws_tls'
+        v2ray_conf_add 'trojan_ws_tls'
               ;;
               [3])
                 echo "Ok You Selected INSTALL Vmess + Ws ..."
-                v2ray_conf_add = 'vmess_ws'
+                v2ray_conf_add 'vmess_ws'
                   ;;
                           [4])
                             echo "Ok You Selected INSTALL Vmess + Tcp ..."
-                            v2ray_conf_add = 'vmess_tcp'
+                            v2ray_conf_add 'vmess_tcp'
                               ;;
                                                   [5])
                                                     echo "Ok You Selected INSTALL Vmess + grpc + tls ..."
-                                                    v2ray_conf_add = 'vmess_grpc'
+                                                    v2ray_conf_add 'vmess_grpc'
                                                       ;;
           *)
         echo "error"
