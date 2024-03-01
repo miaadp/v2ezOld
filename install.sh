@@ -665,35 +665,32 @@ read -rp "Please Select Mode : (1) : Install Vless + Ws | (2) : Install Trojan +
     port_exist_check 80
     port_exist_check "${port}"
     nginx_exist_check
-
-  case $mode_install in
-  [1])
-    echo "Ok You Selected INSTALL Vless + Ws ..."
-    v2ray_conf_add = 'vless_ws'
-      ;;
-      [2])
-    echo "Ok You Selected INSTALL Trojan + Ws + Tls ..."
-    v2ray_conf_add = 'trojan_ws_tls'
+      case $mode_install in
+      [1])
+        echo "Ok You Selected INSTALL Vless + Ws ..."
+        v2ray_conf_add = 'vless_ws'
           ;;
-          [3])
-            echo "Ok You Selected INSTALL Vmess + Ws ..."
-            v2ray_conf_add = 'vmess_ws'
+          [2])
+        echo "Ok You Selected INSTALL Trojan + Ws + Tls ..."
+        v2ray_conf_add = 'trojan_ws_tls'
               ;;
-                      [4])
-                        echo "Ok You Selected INSTALL Vmess + Tcp ..."
-                        v2ray_conf_add = 'vmess_tcp'
-                          ;;
-                                              [5])
-                                                echo "Ok You Selected INSTALL Vmess + grpc + tls ..."
-                                                v2ray_conf_add = 'vmess_grpc'
-                                                  ;;
-      *)
-    echo "error"
-    exit;
-    ;;
-    esac
-
-
+              [3])
+                echo "Ok You Selected INSTALL Vmess + Ws ..."
+                v2ray_conf_add = 'vmess_ws'
+                  ;;
+                          [4])
+                            echo "Ok You Selected INSTALL Vmess + Tcp ..."
+                            v2ray_conf_add = 'vmess_tcp'
+                              ;;
+                                                  [5])
+                                                    echo "Ok You Selected INSTALL Vmess + grpc + tls ..."
+                                                    v2ray_conf_add = 'vmess_grpc'
+                                                      ;;
+          *)
+        echo "error"
+        exit;
+        ;;
+        esac
 web_camouflage
 read -rp "Do you want to continue? It will check domain ip, some make sure any cloud is off" test
 ssl_judge_and_install
