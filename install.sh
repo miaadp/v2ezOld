@@ -491,9 +491,8 @@ nginx_grpc_ws() {
     fastcgi_intercept_errors on;
     fastcgi_pass unix:/run/php/php8.1-fpm.sock;
     fastcgi_param SCRIPT_FILENAME \$document_root/\$fastcgi_script_name;
+   }
   }
-  }
-}
 EOF
 
   judge "Nginx configuration modification"
