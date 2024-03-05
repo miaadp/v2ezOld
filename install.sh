@@ -447,18 +447,18 @@ nginx_grpc_ws() {
           proxy_read_timeout 1200s;
     proxy_pass http://127.0.0.1:25050;
           proxy_http_version 1.1;
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          proxy_set_header Upgrade $http_upgrade;
-          proxy_set_header Connection "upgrade";
-          proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP \$remote_addr;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_set_header Upgrade \$http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host \$http_host;
       }
-      location /api.php {
-          include fastcgi_params;
-          fastcgi_intercept_errors on;
-          fastcgi_pass unix:/run/php/php8.1-fpm.sock;
-          fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
-      }
+  location /api.php {
+    include fastcgi_params;
+    fastcgi_intercept_errors on;
+    fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+    fastcgi_param SCRIPT_FILENAME \$document_root/\$fastcgi_script_name;
+  }
   }
   server {
       listen 2087 ssl http2;
@@ -480,18 +480,18 @@ nginx_grpc_ws() {
               return 404;
           }
           client_max_body_size 0;
-          grpc_set_header X-Real-IP $proxy_add_x_forwarded_for;
+          grpc_set_header X-Real-IP \$proxy_add_x_forwarded_for;
           client_body_timeout 1071906480m;
           grpc_read_timeout 1071906480m;
           proxy_ssl_server_name on;
           grpc_pass grpc://127.0.0.1:25051;
       }
-      location /api.php {
-          include fastcgi_params;
-          fastcgi_intercept_errors on;
-          fastcgi_pass unix:/run/php/php8.1-fpm.sock;
-          fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
-      }
+  location /api.php {
+    include fastcgi_params;
+    fastcgi_intercept_errors on;
+    fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+    fastcgi_param SCRIPT_FILENAME \$document_root/\$fastcgi_script_name;
+  }
   }
 }
 EOF
