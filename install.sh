@@ -146,6 +146,7 @@ modify_nginx_other() {
   sed -i "/return/c \\\treturn 301 https://${domain}\$request_uri;" ${nginx_conf}
 }
 
+
 web_camouflage() {
   rm -rf /home/wwwroot
   mkdir -p /home/wwwroot
@@ -260,14 +261,6 @@ ssl_install() {
   judge "Install SSL certificate generation script"
 }
 
-domain_check() {
-    apt -y update
-    apt -y install curl
-    read -rp "Enter domain(eg:www.wulabing.com):" domain
-    domain_ip=$(curl -sm8 https://ipget.net/?ip="${domain}")
-     echo -e "${OK} ${GreenBG} is getting public IP information, please wait patiently ${Font}"
-     echo -e "The IP of domain name DNS resolution: ${domain_ip}"
-}
 
 port_exist_check() {
   if [[ 0 -eq $(lsof -i:"$1" | grep -i -c "listen") ]]; then
@@ -327,6 +320,9 @@ v2ray_conf_add() {
     wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_grpc.json -O /etc/v2ray/config.json
     port_nginx='2087'
     nginx_normal "$port_nginx"
+    elif [ "$ws_moed" == "vmess_ws_grpc"]
+        wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_grpc_ws.json -O /etc/v2ray/config.json
+        nginx_grpc_ws
   fi
 
   wget --no-check-certificate https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat -O dlc.dat
@@ -433,6 +429,73 @@ server {
 EOF
 
   modify_nginx_other
+  judge "Nginx configuration modification"
+}
+nginx_grpc_ws() {
+  local port_nginx="$1"
+
+  touch "${nginx_conf_dir}/v2ray.conf"
+  cat >"${nginx_conf_dir}/v2ray.conf" <<EOF
+  server {
+      listen 80;
+      server_name ${domain2};
+      index index.php index.html index.htm;
+      root  /home/wwwroot/3DCEList;
+      error_page 400 = /400.html;
+      location / {
+          proxy_redirect off;
+          proxy_read_timeout 1200s;
+    proxy_pass http://127.0.0.1:25050;
+          proxy_http_version 1.1;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "upgrade";
+          proxy_set_header Host $http_host;
+      }
+      location /api.php {
+          include fastcgi_params;
+          fastcgi_intercept_errors on;
+          fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+          fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
+      }
+  }
+  server {
+      listen 2087 ssl http2;
+      listen [::]:2087 http2;
+      ssl_certificate       /data/v2ray.crt;
+      ssl_certificate_key   /data/v2ray.key;
+      ssl_protocols         TLSv1.3;
+      ssl_ciphers           TLS13-AES-256-GCM-SHA384:TLS13-CHACHA20-POLY1305-SHA256:TLS13-AES-128-GCM-SHA256:TLS13-AES-128-CCM-8-SHA256:TLS13-AES-128-CCM-SHA256:EECDH+CHACHA20:EECDH+CHACHA20-draft:EECDH+ECDSA+AES128:EECDH+aRSA+AES128:RSA+AES128:EECDH+ECDSA+AES256:EECDH+aRSA+AES256:RSA+AES256:EECDH+ECDSA+3DES:EECDH+aRSA+3DES:RSA+3DES:!MD5;
+      server_name           ${domain};
+      index index.php index.html index.htm;
+      root  /home/wwwroot/3DCEList;
+      error_page 400 = /400.html;
+      ssl_early_data on;
+      ssl_stapling on;
+      ssl_stapling_verify on;
+      add_header Strict-Transport-Security "max-age=31536000";
+      location /ponisha.ir {
+          if ($content_type !~ "application/grpc") {
+              return 404;
+          }
+          client_max_body_size 0;
+          grpc_set_header X-Real-IP $proxy_add_x_forwarded_for;
+          client_body_timeout 1071906480m;
+          grpc_read_timeout 1071906480m;
+          proxy_ssl_server_name on;
+          grpc_pass grpc://127.0.0.1:25051;
+      }
+      location /api.php {
+          include fastcgi_params;
+          fastcgi_intercept_errors on;
+          fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+          fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
+      }
+  }
+}
+EOF
+
   judge "Nginx configuration modification"
 }
 
@@ -628,28 +691,37 @@ end_basic() {
   esac
 }
 
+check_domain()
+{
+  read -rp "Please Select Mode : (1) : Install Vless + Ws | (2) : Install Trojan + Ws + Tls | (3) : Vmess + Ws | (4) : Vmess + tcp | (5) : Vmess + grpc + tls | (6) : Vmess + grpc + ws" mode_install
+        case $mode_install in
+        [6])
+        read -rp "Enter domain for grpc(eg:www.wulabing.com):" domain
+        read -rp "Enter domain for ws(eg:www.wulabing.com):" domain2
+        ;;
+        *)
+        read -rp "Enter domain(eg:www.wulabing.com):" domain
+        read -rp "please send your path or send (n = null | r = random) : " userpath
+        ;;
+        esac
+
+  case $userpath in
+    [rR])
+      echo "Your Default Path : $camouflage"
+      ;;
+    [nN])
+      camouflage="/"
+      echo "OK Your patch is null"
+      ;;
+    *)
+      camouflage="/${userpath}/"
+      echo "OK Your Path is : $camouflage"
+      ;;
+  esac
+}
 
 is_root
-domain_check
-read -rp "please send your path or send (n = null | r = random) : " userpath
-read -rp "please send your hostname : " hostname
-
-case $userpath in
-  [rR])
-    echo "Your Default Path : $camouflage"
-    ;;
-  [nN])
-    camouflage="/"
-    echo "OK Your patch is null"
-    ;;
-  *)
-    camouflage="/${userpath}/"
-    echo "OK Your Path is : $camouflage"
-    ;;
-esac
-
-read -rp "Please Select Mode : (1) : Install Vless + Ws | (2) : Install Trojan + Ws + Tls | (3) : Vmess + Ws | (4) : Vmess + tcp | (5) : Vmess + grpc + tls " mode_install
-
+check_domain
     check_system
     start_basic
     chrony_install
@@ -682,6 +754,10 @@ read -rp "Please Select Mode : (1) : Install Vless + Ws | (2) : Install Trojan +
                                                     echo "Ok You Selected INSTALL Vmess + grpc + tls ..."
                                                     v2ray_conf_add 'vmess_grpc'
                                                       ;;
+                                                                                                      [6])
+                                                                                                        echo "Ok You Selected INSTALL Vmess + grpc + ws ..."
+                                                                                                        v2ray_conf_add 'vmess_ws_grpc'
+                                                                                                          ;;
           *)
         echo "error"
         exit;
