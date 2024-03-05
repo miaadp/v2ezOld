@@ -298,7 +298,6 @@ acme() {
 }
 
 v2ray_conf_add() {
-
   local ws_mode="${1:-}"
 
   if [ "$ws_mode" == "trojan_ws_tls" ]; then
@@ -320,15 +319,16 @@ v2ray_conf_add() {
     wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_grpc.json -O /etc/v2ray/config.json
     port_nginx='2087'
     nginx_normal "$port_nginx"
-    elif [ "$ws_moed" == "vmess_ws_grpc"]
-        wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_grpc_ws.json -O /etc/v2ray/config.json
-        nginx_grpc_ws
+  elif [ "$ws_mode" == "vmess_ws_grpc" ]; then
+    wget --no-check-certificate https://raw.githubusercontent.com/miaadp/v2ezOld/main/vmess_grpc_ws.json -O /etc/v2ray/config.json
+    nginx_grpc_ws
+  else
+    modify_path
+    modify_inbound_port
   fi
 
   wget --no-check-certificate https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat -O dlc.dat
   wget --no-check-certificate https://github.com/bootmortis/iran-hosted-domains/releases/latest/download/iran.dat -O iran.dat
-  modify_path
-  modify_inbound_port
 }
 
 
