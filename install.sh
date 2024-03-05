@@ -476,7 +476,7 @@ nginx_grpc_ws() {
       ssl_stapling_verify on;
       add_header Strict-Transport-Security "max-age=31536000";
       location /ponisha.ir {
-          if ($content_type !~ "application/grpc") {
+          if (\$content_type !~ "application/grpc") {
               return 404;
           }
           client_max_body_size 0;
