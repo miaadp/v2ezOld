@@ -144,7 +144,17 @@ if (isset($_GET['type']) && isset($_GET['user']) && isset($_GET['pass']) && $_GE
             $removes = $_POST['remove'] ?? [];
             $config = json_decode(file_get_contents('/etc/v2ray/config.json'), true);
             $config2 = $config;
+            if(empty($config) || !is_array($config))
+            {
+                 show(true, 'error get info in json_decode first step');
+                 exit();
+            }
             foreach ($config['inbounds'] as &$inbound) {
+                if(empty($inbound) || !is_array($inbound))
+                {
+                    show(true, 'error get info in foreach');
+                    exit();
+                }
                 if (isset($inbound['port']) && $inbound['port'] == 10085) {
                     continue;
                 }
